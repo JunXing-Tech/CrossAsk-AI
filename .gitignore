@@ -1,0 +1,29 @@
+# ===== 敏感信息（务必忽略，切勿提交）=====
+.env
+*.env
+!.env.example
+**/application-local.yml
+**/application-prod.yml
+
+# ===== 构建产物 =====
+target/
+dist/
+node_modules/
+*.jar
+!**/.mvn/wrapper/maven-wrapper.jar
+
+# ===== Eval 历史报告 =====
+crossask-eval/eval-reports/
+
+# ===== 日志 =====
+*.log
+logs/
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.iml
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
