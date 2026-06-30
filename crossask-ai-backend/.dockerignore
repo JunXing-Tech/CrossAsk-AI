@@ -1,0 +1,3 @@
+# 只把已编译的 jar 带进构建上下文，其余全部排除，加快构建、减小上下文
+*
+!crossask-api/target/crossask-api-*.jar

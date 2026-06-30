@@ -1,0 +1,59 @@
+spring:
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY}   # 通过环境变量注入，禁止写明文
+      embedding:
+        model: text-embedding-v4
+        options:
+          dimensions: 1024
+      chat:
+        options:
+          model: qwen-turbo   # v1.1: 正确的配置路径是 chat.options.model；qwen-plus 免费额度耗尽，换 qwen-turbo
+    # v0.6 起 api 不再使用 Spring AI 的 QdrantVectorStore，直接用 Qdrant REST API
+    # （collection 改为 named vectors，Spring AI starter 期望单向量 collection 会启动报错）
+  datasource:
+    # v0.7 引入：远程 MySQL 5.7.44；库 crossask_ai 由 db-init/V0_7__products.sql 建好
+    url: jdbc:mysql://101.96.211.131:3306/crossask_ai?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:crossask_ai}
+    password: ${CROSSASK_AI_MYSQL_PASSWORD}   # 通过环境变量注入，禁止写明文
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+
+crossask:
+  qdrant:
+    host: 101.96.211.131
+    port: 6333
+    collection: crossask_docs
+    dimension: 1024
+    distance: Cosine
+  rag:
+    retrieve-top-k: 15
+    rerank-top-k: 5
+    similarity-threshold: 0.2   # 仅在 hybrid.enabled=false 且未来回退用；当前 v0.6 走 hybrid 时忽略
+    rerank:
+      enabled: true
+      model: qwen3-rerank
+    query-translation:
+      enabled: true              # v1.0：是否启用 query 翻译（sparse 路）
+      cache-max-size: 500
+      cache-ttl-hours: 1
+  hybrid:
+    enabled: true
+    dense-prefetch-limit: 30
+    sparse-prefetch-limit: 30
+    fusion: rrf
+  product:
+    query:
+      default-limit: 5
+      max-limit: 10
+  chat:
+    memory:
+      turns: 5                # 保留最近 5 轮（10 条消息）
+      retention-days: 7       # 历史保留 7 天
+      cleanup-cron: "0 0 3 * * SUN"   # 每周日凌晨 3 点清理

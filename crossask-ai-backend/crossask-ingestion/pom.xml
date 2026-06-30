@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.crossask</groupId>
+        <artifactId>crossask</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>crossask-ingestion</artifactId>
+    <name>CrossAsk Ingestion</name>
+    <description>数据摄入：离线任务，把文档变成 Qdrant 向量</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.crossask</groupId>
+            <artifactId>crossask-common</artifactId>
+        </dependency>
+        <!-- DashScope starter 仍保留以提供 ${spring.ai.dashscope.*} 配置占位的语义一致性；v0.6 embedding 走自建 hybrid client -->
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
+        </dependency>
+        <!-- v0.6 起 Qdrant 直接走 REST API，不再依赖 spring-ai-starter-vector-store-qdrant -->
+        <!-- HTML 解析（爬虫 + 切分） -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
+        </dependency>
+        <!-- v0.7 引入：MyBatis-Plus 已由 common 传递；这里只补 MySQL 驱动 -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
