@@ -1,0 +1,80 @@
+/* v1.1 Claude 风格设计令牌（暖米色 + 赭橙）。全局变量，各组件复用。 */
+:root {
+  /* 背景层 */
+  --bg-app: #faf9f5;          /* 整体背景：暖白 */
+  --bg-sidebar: #f0eee6;      /* 侧边栏：米色 */
+  --bg-surface: #ffffff;      /* 卡片/气泡表面 */
+  --bg-hover: #efede4;        /* hover 态 */
+  --bg-user-bubble: #f0eee6;  /* 用户气泡 */
+
+  /* 强调色（Claude 招牌赭橙） */
+  --accent: #d97757;
+  --accent-hover: #c96442;
+  --accent-soft: #f5e6df;     /* 浅赭，用于高亮背景 */
+
+  /* 文字 */
+  --text-primary: #3d3d3a;
+  --text-secondary: #6e6e68;
+  --text-tertiary: #9a988f;
+  --text-on-accent: #ffffff;
+
+  /* 边框/分隔 */
+  --border: #e8e6dc;
+  --border-strong: #dcd9cc;
+
+  /* 功能色 */
+  --success: #5a9367;
+  --error: #c0584a;
+  --error-bg: #fbeeec;
+
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* 阴影（柔和、暖调） */
+  --shadow-sm: 0 1px 2px rgba(60, 56, 50, 0.06);
+  --shadow-md: 0 4px 16px rgba(60, 56, 50, 0.08);
+  --shadow-lg: 0 8px 32px rgba(60, 56, 50, 0.1);
+
+  /* 字体 */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* 全局滚动条（细、暖灰） */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
