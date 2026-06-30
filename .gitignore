@@ -13,7 +13,7 @@ node_modules/
 !**/.mvn/wrapper/maven-wrapper.jar
 
 # ===== Eval 历史报告 =====
-crossask-eval/eval-reports/
+**/eval-reports/
 
 # ===== 日志 =====
 *.log

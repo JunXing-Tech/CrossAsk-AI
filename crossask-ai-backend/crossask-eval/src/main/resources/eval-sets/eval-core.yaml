@@ -1,0 +1,330 @@
+# v0.8 评测集：30 题
+# 分类：docs(20) / products(6) / mixed(2) / fallback(2)
+# Q1-Q12 来自 v0.7 联调（已验证通过），Q13-Q30 新增
+
+cases:
+  # ========== v0.7 回归：文档类 Q1-Q7 ==========
+  - id: "Q1"
+    question: "eBay 上购买的商品如何申请退货？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.ebay.com/help/buying/returns-refunds/return-isem-refund?id=4041"
+    expected_item_ids: []
+    expected_keywords: ["退货", "退款", "return"]
+    expected_answer_lang: "zh"
+
+  - id: "Q2"
+    question: "国际包裹寄到美国需要交关税吗？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.usps.com/international/customs-forms.htm"
+      - "https://www.ebay.com/help/buying/shipping-delivery/changing-delivery-address-method/international-purchases-shipping?id=4057"
+    expected_item_ids: []
+    expected_keywords: ["关税", "customs", "duty"]
+    expected_answer_lang: "zh"
+
+  - id: "Q3"
+    question: "USPS Priority Mail International 寄到中国需要多少天？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.usps.com/international/priority-mail-international.htm"
+    expected_item_ids: []
+    expected_keywords: ["6", "10", "天", "days", "Priority Mail"]
+    expected_answer_lang: "zh"
+
+  - id: "Q4"
+    question: "哪些物品禁止国际寄送？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.usps.com/international/customs-forms.htm"
+    expected_item_ids: []
+    expected_keywords: ["禁止", "prohibited", "危险品"]
+    expected_answer_lang: "zh"
+
+  - id: "Q5"
+    question: "北京今天天气怎么样？"
+    category: "fallback"
+    expected_tools: []
+    expected_source_urls: []
+    expected_item_ids: []
+    expected_keywords: ["无法", "找不到", "cannot"]
+    expected_answer_lang: "zh"
+
+  - id: "Q6"
+    question: "Priority Mail Express International 寄到加拿大要几天？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.usps.com/international/priority-mail-express-international.htm"
+    expected_item_ids: []
+    expected_keywords: ["3", "5", "天", "days", "Express"]
+    expected_answer_lang: "zh"
+
+  - id: "Q7"
+    question: "First-Class Package International Service 的时效是多少？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.usps.com/international/first-class-package-international-service.htm"
+    expected_item_ids: []
+    expected_keywords: ["First-Class", "时效", "delivery"]
+    expected_answer_lang: "zh"
+
+  # ========== v0.7 回归：商品类 Q8-Q10 ==========
+  - id: "Q8"
+    question: "iPhone 15 大概多少钱？"
+    category: "products"
+    expected_tools: ["queryProducts"]
+    expected_source_urls: []
+    expected_item_ids:
+      - "356227813818"
+      - "306855645841"
+      - "178038524185"
+      - "326721850706"
+      - "404123567789"
+    expected_keywords: ["iPhone", "价格", "price", "$"]
+    expected_answer_lang: "zh"
+
+  - id: "Q9"
+    question: "有 200 美元以下的耳机吗？"
+    category: "products"
+    expected_tools: ["queryProducts"]
+    expected_source_urls: []
+    expected_item_ids:
+      - "186812345680"
+      - "186812345679"
+    expected_keywords: ["耳机", "headphones", "Sony", "200"]
+    expected_answer_lang: "zh"
+
+  - id: "Q10"
+    question: "Apple 品牌的免邮商品有哪些？"
+    category: "products"
+    expected_tools: ["queryProducts"]
+    expected_source_urls: []
+    expected_item_ids:
+      - "117055613917"
+      - "377264644382"
+      - "285636515887"
+    expected_keywords: ["Apple", "免邮", "free shipping"]
+    expected_answer_lang: "zh"
+
+  # ========== v0.7 回归：混合类 + 兜底类 Q11-Q12 ==========
+  - id: "Q11"
+    question: "我想退掉买的 iPhone 15，怎么操作？"
+    category: "mixed"
+    expected_tools: ["searchDocs", "queryProducts"]
+    expected_source_urls:
+      - "https://www.ebay.com/help/buying/returns-refunds/return-isem-refund?id=4041"
+    expected_item_ids:
+      - "356227813818"
+    expected_keywords: ["退货", "return", "iPhone"]
+    expected_answer_lang: "zh"
+
+  - id: "Q12"
+    question: "iPhone 16 多少钱？"
+    category: "fallback"
+    expected_tools: []
+    expected_source_urls: []
+    expected_item_ids: []
+    expected_keywords: ["没有", "找不到", "cannot"]
+    expected_answer_lang: "zh"
+
+  # ========== 新增：文档类 Q13-Q20（8 题）==========
+  - id: "Q13"
+    question: "eBay 上如何联系卖家？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.ebay.com/help/buying/resolving-issues-sellers/contacting-seller?id=4021"
+    expected_item_ids: []
+    expected_keywords: ["联系", "contact", "卖家", "seller"]
+    expected_answer_lang: "zh"
+
+  - id: "Q14"
+    question: "eBay 的退款保障政策是什么？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.ebay.com/help/policies/ebay-money-back-guarantee-policy/ebay-money-back-guarantee-policy?id=4210"
+    expected_item_ids: []
+    expected_keywords: ["退款保障", "Money Back", "Guarantee"]
+    expected_answer_lang: "zh"
+
+  - id: "Q15"
+    question: "包裹没送到怎么办？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.ebay.com/help/buying/returns-refunds/get-help-item-hasnt-arrived?id=4042"
+    expected_item_ids: []
+    expected_keywords: ["未送达", "hasn't arrived", "物品"]
+    expected_answer_lang: "zh"
+
+  - id: "Q16"
+    question: "退货时运费由谁承担？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.ebay.com/help/buying/returns-refunds/start-return/return-shipping?id=4066"
+    expected_item_ids: []
+    expected_keywords: ["运费", "shipping", "退货"]
+    expected_answer_lang: "zh"
+
+  - id: "Q17"
+    question: "退回的商品需要保持什么状况？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.ebay.com/help/policies/member-behavior-policies/condition-returned-items-policy?id=4763"
+    expected_item_ids: []
+    expected_keywords: ["状况", "condition", "退回"]
+    expected_answer_lang: "zh"
+
+  - id: "Q18"
+    question: "USPS Priority Mail International 的追踪能力怎么样？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.usps.com/international/priority-mail-international.htm"
+    expected_item_ids: []
+    expected_keywords: ["追踪", "tracking", "Priority Mail"]
+    expected_answer_lang: "zh"
+
+  - id: "Q19"
+    question: "如何打印国际运单？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.usps.com/international/international-how-to.htm"
+    expected_item_ids: []
+    expected_keywords: ["打印", "print", "运单", "label"]
+    expected_answer_lang: "zh"
+
+  - id: "Q20"
+    question: "跨国购买的商品运送到哪里可以追踪？"
+    category: "docs"
+    expected_tools: ["searchDocs"]
+    expected_source_urls:
+      - "https://www.ebay.com/help/buying/shipping-delivery/changing-delivery-address-method/international-purchases-shipping?id=4057"
+    expected_item_ids: []
+    expected_keywords: ["跨国", "international", "运送", "追踪"]
+    expected_answer_lang: "zh"
+
+  # ========== 新增：商品类 Q21-Q26（6 题）==========
+  - id: "Q21"
+    question: "Sony 品牌的耳机有哪些？"
+    category: "products"
+    expected_tools: ["queryProducts"]
+    expected_source_urls: []
+    expected_item_ids:
+      - "186812345678"
+      - "186812345679"
+      - "186812345680"
+    expected_keywords: ["Sony", "耳机", "headphones"]
+    expected_answer_lang: "zh"
+
+  - id: "Q22"
+    question: "MacBook Air 的价格范围是多少？"
+    category: "products"
+    expected_tools: ["queryProducts"]
+    expected_source_urls: []
+    expected_item_ids:
+      - "276543210001"
+      - "276543210002"
+      - "276543210003"
+    expected_keywords: ["MacBook", "价格", "price", "$"]
+    expected_answer_lang: "zh"
+
+  - id: "Q23"
+    question: "Kindle Paperwhite 有哪些在售？"
+    category: "products"
+    expected_tools: ["queryProducts"]
+    expected_source_urls: []
+    expected_item_ids:
+      - "455678910001"
+      - "455678910002"
+      - "455678910003"
+    expected_keywords: ["Kindle", "Paperwhite"]
+    expected_answer_lang: "zh"
+
+  - id: "Q24"
+    question: "有哪些 500 美元以上的手机？"
+    category: "products"
+    expected_tools: ["queryProducts"]
+    expected_source_urls: []
+    expected_item_ids:
+      - "178038524185"
+      - "326721850706"
+      - "566789120002"
+    expected_keywords: ["手机", "phone", "500"]
+    expected_answer_lang: "zh"
+
+  - id: "Q25"
+    question: "Samsung Galaxy S24 的价格是多少？"
+    category: "products"
+    expected_tools: ["queryProducts"]
+    expected_source_urls: []
+    expected_item_ids:
+      - "566789120001"
+      - "566789120002"
+    expected_keywords: ["Samsung", "Galaxy", "S24", "$"]
+    expected_answer_lang: "zh"
+
+  - id: "Q26"
+    question: "有哪些全新（Brand New）的商品？"
+    category: "products"
+    expected_tools: ["queryProducts"]
+    expected_source_urls: []
+    expected_item_ids:
+      - "206267750636"
+      - "186812345678"
+      - "186812345680"
+    expected_keywords: ["全新", "Brand New", "new"]
+    expected_answer_lang: "zh"
+
+  # ========== 新增：混合类 Q27-Q28（2 题）==========
+  - id: "Q27"
+    question: "我买的 AirPods Pro 想退货，怎么操作？"
+    category: "mixed"
+    expected_tools: ["searchDocs", "queryProducts"]
+    expected_source_urls:
+      - "https://www.ebay.com/help/buying/returns-refunds/return-isem-refund?id=4041"
+    expected_item_ids:
+      - "117055613917"
+      - "377264644382"
+    expected_keywords: ["退货", "return", "AirPods"]
+    expected_answer_lang: "zh"
+
+  - id: "Q28"
+    question: "跨国购买 Sony 耳机，运费和关税怎么算？"
+    category: "mixed"
+    expected_tools: ["searchDocs", "queryProducts"]
+    expected_source_urls:
+      - "https://www.ebay.com/help/buying/shipping-delivery/changing-delivery-address-method/international-purchases-shipping?id=4057"
+    expected_item_ids:
+      - "186812345678"
+    expected_keywords: ["跨国", "关税", "customs", "Sony"]
+    expected_answer_lang: "zh"
+
+  # ========== 新增：兜底类 Q29-Q30（2 题）==========
+  - id: "Q29"
+    question: "Tesla Model 3 多少钱？"
+    category: "fallback"
+    expected_tools: []
+    expected_source_urls: []
+    expected_item_ids: []
+    expected_keywords: ["没有", "找不到", "cannot"]
+    expected_answer_lang: "zh"
+
+  - id: "Q30"
+    question: "今天纽约汇率是多少？"
+    category: "fallback"
+    expected_tools: []
+    expected_source_urls: []
+    expected_item_ids: []
+    expected_keywords: ["无法", "找不到", "cannot"]
+    expected_answer_lang: "zh"

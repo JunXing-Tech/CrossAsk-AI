@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: crossask-eval
+
+crossask:
+  eval:
+    api-url: "http://localhost:8080/ask"
+    eval-set: "eval-sets/eval-core.yaml"
+    report-dir: "eval-reports"
+    timeout-seconds: 90
+    judge:
+      enabled: false
+      model: "qwen-plus"
+    api-config-snapshot: "hybrid=true, rerank=true, retrieve-top-k=15, rerank-top-k=5"
