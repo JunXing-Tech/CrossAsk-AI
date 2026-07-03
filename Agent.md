@@ -2509,7 +2509,18 @@ ProductCard 字段严格对齐后端 `ProductItem`：`title / price / currency /
 | 3 | 问答服务 | 同步 `ask()` 与流式 `askStream()` 兜底判定不一致 | 流式版统一为 `isEmpty()` 即 FALLBACK_EMPTY |
 | 4 | 流式 SSE | 切片按 UTF-16 char 会截断 emoji 代理对 | 改用 `offsetByCodePoints` 按 code point 安全切片 |
 
-### 18.17 累计进展（MVP → v1.1）
+### 18.17 System Prompt 优化：Meta 问题直答
+
+**问题**：用户问"你的回答边界是什么？""你能回答什么问题？"时，RAG 检索不到相关文档，走 `FALLBACK_EMPTY` 返回"未找到相关信息，建议联系人工客服"。
+
+**根因**：system prompt 的"跳过工具调用"例外只列了问候和完全无关问题两类，关于系统能力的 meta 问题不属例外 → 模型调工具 → 检索为空 → 兜底。
+
+**修复**：
+1. system prompt 新增 `## Your Identity & Capabilities` 和 `## Your Scope & Boundaries` 两段，注入系统能力（商品咨询 + 政策物流问答）与边界（不回答天气/新闻/汇率等）
+2. "跳过工具调用"例外新增第三类：**Meta 问题**（"你能回答什么""你的边界""你是谁"等），让模型基于身份设定直接回答，不调工具
+3. 范围外问题从原来的"say you cannot help"改为"polite explain what you can help with"，体验更友好
+
+### 18.18 累计进展（MVP → v1.1）
 - MVP：单向量召回 + score_threshold
 - v0.5：扩大召回 15 → rerank 5 → LLM
 - v0.6：dense+sparse 双路召回 → RRF 融合 15 → rerank 5 → LLM，新增 text_type=query/document 区分

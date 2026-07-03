@@ -16,12 +16,24 @@ public final class ToolCallContext {
 
     private static final ThreadLocal<List<Source>> SOURCES = ThreadLocal.withInitial(ArrayList::new);
     private static final ThreadLocal<List<ProductItem>> PRODUCTS = ThreadLocal.withInitial(ArrayList::new);
+    private static final ThreadLocal<Boolean> TOOL_CALLED = ThreadLocal.withInitial(() -> false);
 
     private ToolCallContext() {}
 
     public static void reset() {
         SOURCES.get().clear();
         PRODUCTS.get().clear();
+        TOOL_CALLED.set(false);
+    }
+
+    /** 标记本次请求确实触发了工具调用（区分"meta 问题免工具"与"调了工具但返回空"）。 */
+    public static void markToolCalled() {
+        TOOL_CALLED.set(true);
+    }
+
+    /** 是否有工具被 LLM 调用过。 */
+    public static boolean isToolCalled() {
+        return TOOL_CALLED.get();
     }
 
     public static void addSources(List<Source> list) {

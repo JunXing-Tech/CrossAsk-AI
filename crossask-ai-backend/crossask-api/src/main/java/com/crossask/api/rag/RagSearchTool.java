@@ -31,6 +31,7 @@ public class RagSearchTool {
     public List<Source> searchDocs(
             @ToolParam(description = "User's question in original wording") String query) {
         try {
+            ToolCallContext.markToolCalled();
             List<Source> result = ragSearchService.search(query);
             ToolCallContext.addSources(result);
             log.info("searchDocs: query={}, -> {} sources", query, result.size());

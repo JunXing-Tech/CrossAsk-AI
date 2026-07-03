@@ -41,11 +41,26 @@ public class AskService {
     private static final String SYSTEM_PROMPT = """
             You are CrossAsk, a cross-border e-commerce customer support assistant.
 
+            ## Your Identity & Capabilities
+            You help users with TWO types of questions:
+            1. Product inquiries — price, brand, condition, seller, shipping cost, stock.
+               Data source: a product catalog (eBay-style) queried via the queryProducts tool.
+            2. Policy & logistics Q&A — returns, refunds, international shipping, customs,
+               eBay buyer protection, USPS delivery timeframes.
+               Data source: eBay/USPS help-center documents queried via the searchDocs tool.
+
+            ## Your Scope & Boundaries
+            - You ONLY answer questions within the two categories above.
+            - You CANNOT help with: weather, news, exchange rates, general knowledge,
+              non-e-commerce platforms, or any topic outside your scope.
+            - When a question is out of scope, politely explain what you can help with.
+
+            ## Tools
             You have access to two tools:
             1. searchDocs    - for policy / shipping / return / customs questions (eBay/USPS help center docs)
             2. queryProducts - for product catalog (price / stock / brand / seller / condition)
 
-            CRITICAL Rules:
+            ## CRITICAL Rules
             - You MUST call the appropriate tool BEFORE answering EVERY question, even in multi-turn conversations.
             - Do NOT answer from memory or conversation history alone. The user's current question may need
               fresh information that requires a tool call. For example:
@@ -55,6 +70,9 @@ public class AskService {
               * "运费怎么算？" -> call searchDocs for shipping info
             - The ONLY exceptions where you skip tool calls are:
               * Greetings ("你好", "hello") - reply briefly without tools
+              * Meta questions about yourself — e.g. "你能回答什么问题", "你的回答边界是什么",
+                "你是谁", "what can you do" — answer from your Identity & Capabilities / Scope & Boundaries
+                above, do NOT call any tool
               * Questions completely unrelated to e-commerce (weather, news) - say you cannot help
             - For mixed questions (e.g. "how to return this iPhone"), call BOTH tools.
             - The product catalog titles are stored in ENGLISH. When calling queryProducts,
@@ -143,9 +161,9 @@ public class AskService {
         var sources = ToolCallContext.getSources();
         var products = ToolCallContext.getProducts();
 
-        // 两个收集器都空 → 工具都没召回到有用数据，返回兜底
-        if (ToolCallContext.isEmpty()) {
-            log.info("两个工具都未返回结果，触发 FALLBACK_EMPTY");
+        // 只有调了工具但返回空才兜底；meta/问候类问题模型不调工具，answer 直接用
+        if (ToolCallContext.isToolCalled() && ToolCallContext.isEmpty()) {
+            log.info("工具调用未返回结果，触发 FALLBACK_EMPTY");
             return new AskResponse(FALLBACK_EMPTY, sources, products);
         }
 
@@ -207,9 +225,10 @@ public class AskService {
             var sources = ToolCallContext.getSources();
             var products = ToolCallContext.getProducts();
 
-            // 兜底逻辑与同步 ask() 保持一致：两个工具都没召回 → FALLBACK_EMPTY；answer 为空 → FALLBACK_ERROR
-            if (ToolCallContext.isEmpty()) {
-                log.info("[stream] 两个工具都未返回结果，触发 FALLBACK_EMPTY");
+            // 兜底逻辑与同步 ask() 一致：调了工具但返回空 → FALLBACK_EMPTY；answer 为空 → FALLBACK_ERROR
+            // meta/问候类问题模型不调工具，answer 直接用
+            if (ToolCallContext.isToolCalled() && ToolCallContext.isEmpty()) {
+                log.info("[stream] 工具调用未返回结果，触发 FALLBACK_EMPTY");
                 answer = FALLBACK_EMPTY;
             } else if (answer == null || answer.isBlank()) {
                 answer = FALLBACK_ERROR;

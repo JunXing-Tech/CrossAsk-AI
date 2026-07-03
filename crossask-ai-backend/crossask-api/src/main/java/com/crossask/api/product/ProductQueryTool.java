@@ -40,6 +40,7 @@ public class ProductQueryTool {
             @ToolParam(description = "Max results (default 5, max 10)", required = false) Integer limit) {
 
         try {
+            ToolCallContext.markToolCalled();
             List<ProductItem> result = productService.query(keyword, brand, minPrice, maxPrice,
                     conditionText, freeShippingOnly, limit);
             ToolCallContext.addProducts(result);
