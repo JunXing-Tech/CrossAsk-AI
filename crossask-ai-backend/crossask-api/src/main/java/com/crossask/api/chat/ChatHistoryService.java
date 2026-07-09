@@ -18,6 +18,7 @@ import java.util.List;
  * <p>
  * 用 MyBatis-Plus 操作 chat_history 表，返回 {@link Message} 列表供 AskService 拼接到 ChatClient。
  * 只存 user + assistant 的 text，不存 tool_call 中间消息。
+ * v1.2 所有操作增加 clientId 参数，实现浏览器级会话隔离。
  */
 @Service
 public class ChatHistoryService {
@@ -36,10 +37,10 @@ public class ChatHistoryService {
      * 取最近 {@code turns} 轮（turns*2 条 user+assistant 消息），按时间正序返回。
      * LLM 需要正序看到对话历史。
      */
-    public List<Message> getHistory(String sessionId) {
+    public List<Message> getHistory(String sessionId, String clientId) {
         try {
             int limit = props.getTurns() * 2;
-            List<ChatHistory> rows = mapper.selectRecentDesc(sessionId, limit);
+            List<ChatHistory> rows = mapper.selectRecentDesc(sessionId, clientId, limit);
             if (rows.isEmpty()) {
                 return List.of();
             }
@@ -54,7 +55,7 @@ public class ChatHistoryService {
                     messages.add(new AssistantMessage(row.getContent()));
                 }
             }
-            log.debug("getHistory sessionId={} → {} 条消息", sessionId, messages.size());
+            log.debug("getHistory sessionId={} -> {} 条消息", sessionId, messages.size());
             return messages;
         } catch (Exception e) {
             log.warn("读取 chat_history 失败，降级为单轮: {}", e.getMessage());
@@ -66,12 +67,13 @@ public class ChatHistoryService {
      * 追加本轮 user + assistant 消息。
      * 失败不抛异常（调用方已 try-catch），但此处也兜一层。
      */
-    public void appendTurn(String sessionId, String userQuestion, String assistantAnswer) {
+    public void appendTurn(String sessionId, String clientId, String userQuestion, String assistantAnswer) {
         try {
-            int nextTurn = mapper.maxTurnIndex(sessionId) + 1;
+            int nextTurn = mapper.maxTurnIndex(sessionId, clientId) + 1;
 
             ChatHistory userRow = new ChatHistory();
             userRow.setSessionId(sessionId);
+            userRow.setClientId(clientId);
             userRow.setTurnIndex(nextTurn);
             userRow.setRole("user");
             userRow.setContent(userQuestion);
@@ -79,21 +81,22 @@ public class ChatHistoryService {
 
             ChatHistory assistantRow = new ChatHistory();
             assistantRow.setSessionId(sessionId);
+            assistantRow.setClientId(clientId);
             assistantRow.setTurnIndex(nextTurn);
             assistantRow.setRole("assistant");
             assistantRow.setContent(assistantAnswer);
             mapper.insert(assistantRow);
 
-            log.debug("appendTurn sessionId={} turn={} → 2 条消息已写入", sessionId, nextTurn);
+            log.debug("appendTurn sessionId={} turn={} -> 2 条消息已写入", sessionId, nextTurn);
         } catch (Exception e) {
             log.warn("写入 chat_history 失败，不中断主流程: {}", e.getMessage());
         }
     }
 
-    /** v1.1 会话列表（最近活跃倒序），用于前端侧边栏。 */
-    public List<SessionSummary> listSessions(int limit) {
+    /** v1.1 会话列表（最近活跃倒序），用于前端侧边栏。v1.2 按 clientId 隔离。 */
+    public List<SessionSummary> listSessions(int limit, String clientId) {
         try {
-            List<java.util.Map<String, Object>> rows = mapper.selectSessions(limit);
+            List<java.util.Map<String, Object>> rows = mapper.selectSessions(limit, clientId);
             List<SessionSummary> result = new ArrayList<>(rows.size());
             for (var row : rows) {
                 String title = row.get("title") == null ? "新对话" : String.valueOf(row.get("title"));
@@ -115,10 +118,10 @@ public class ChatHistoryService {
         }
     }
 
-    /** v1.1 拉取某会话全部消息（正序），用于前端切换会话时还原对话。 */
-    public List<ChatMessageDto> getMessages(String sessionId) {
+    /** v1.1 拉取某会话全部消息（正序），用于前端切换会话时还原对话。v1.2 加 clientId 校验。 */
+    public List<ChatMessageDto> getMessages(String sessionId, String clientId) {
         try {
-            List<ChatHistory> rows = mapper.selectAllBySession(sessionId);
+            List<ChatHistory> rows = mapper.selectAllBySession(sessionId, clientId);
             List<ChatMessageDto> result = new ArrayList<>(rows.size());
             for (ChatHistory row : rows) {
                 result.add(new ChatMessageDto(
@@ -134,10 +137,10 @@ public class ChatHistoryService {
         }
     }
 
-    /** v1.1 删除某会话。 */
-    public boolean deleteSession(String sessionId) {
+    /** v1.1 删除某会话。v1.2 加 clientId 校验防止越权删除。 */
+    public boolean deleteSession(String sessionId, String clientId) {
         try {
-            mapper.deleteBySession(sessionId);
+            mapper.deleteBySession(sessionId, clientId);
             return true;
         } catch (Exception e) {
             log.warn("删除会话失败 sessionId={}: {}", sessionId, e.getMessage());

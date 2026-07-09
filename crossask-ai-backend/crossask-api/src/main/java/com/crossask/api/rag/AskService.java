@@ -119,6 +119,7 @@ public class AskService {
     public AskResponse ask(AskRequest request) {
         String question = request.getQuestion();
         String sessionId = request.getSessionId();
+        String clientId = request.getClientId();
 
         // 入口先重置 ThreadLocal 收集器，避免线程复用串数据
         ToolCallContext.reset();
@@ -127,7 +128,7 @@ public class AskService {
         List<Message> history = List.of();
         if (sessionId != null && !sessionId.isBlank()) {
             try {
-                history = chatHistoryService.getHistory(sessionId);
+                history = chatHistoryService.getHistory(sessionId, clientId);
                 log.info("读取历史: sessionId={}, turns={}", sessionId, history.size() / 2);
             } catch (Exception e) {
                 log.warn("读取 chat_history 失败，降级为单轮: {}", e.getMessage());
@@ -152,7 +153,7 @@ public class AskService {
         // v0.9：持久化历史（失败不中断主流程）
         if (sessionId != null && !sessionId.isBlank() && answer != null && !answer.isBlank()) {
             try {
-                chatHistoryService.appendTurn(sessionId, question, answer);
+                chatHistoryService.appendTurn(sessionId, clientId, question, answer);
             } catch (Exception e) {
                 log.warn("写入 chat_history 失败，不中断主流程: {}", e.getMessage());
             }
@@ -190,6 +191,7 @@ public class AskService {
         STREAM_EXECUTOR.execute(() -> {
             String question = request.getQuestion();
             String sessionId = request.getSessionId();
+            String clientId = request.getClientId();
 
             // 同一线程内：reset -> 读历史 -> call（工具写 ThreadLocal）-> 读 ThreadLocal，全程线程一致
             ToolCallContext.reset();
@@ -197,7 +199,7 @@ public class AskService {
             List<Message> history = List.of();
             if (sessionId != null && !sessionId.isBlank()) {
                 try {
-                    history = chatHistoryService.getHistory(sessionId);
+                    history = chatHistoryService.getHistory(sessionId, clientId);
                     log.info("[stream] 读取历史: sessionId={}, turns={}", sessionId, history.size() / 2);
                 } catch (Exception e) {
                     log.warn("[stream] 读取 chat_history 失败，降级单轮: {}", e.getMessage());
@@ -265,7 +267,7 @@ public class AskService {
                 // 先持久化历史，再发 done —— 保证前端收到 done 后 loadSessions 能立即拿到新会话
                 if (sessionId != null && !sessionId.isBlank() && !answer.isBlank()) {
                     try {
-                        chatHistoryService.appendTurn(sessionId, question, answer);
+                        chatHistoryService.appendTurn(sessionId, clientId, question, answer);
                     } catch (Exception e) {
                         log.warn("[stream] 写入 chat_history 失败: {}", e.getMessage());
                     }

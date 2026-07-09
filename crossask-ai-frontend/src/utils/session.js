@@ -1,7 +1,19 @@
 /**
  * sessionId 管理：用 localStorage 持久化"当前活跃会话 ID"，刷新页面后保持。
+ * clientId 管理：浏览器级唯一标识，用于后端会话隔离，不同浏览器互不可见。
  */
 const KEY = 'crossask_session_id'
+const CLIENT_KEY = 'crossask_client_id'
+
+/** 读取或生成浏览器级 clientId（首次访问生成，之后持久化）。 */
+export function getOrCreateClientId() {
+  let id = localStorage.getItem(CLIENT_KEY)
+  if (!id) {
+    id = generateUuid()
+    localStorage.setItem(CLIENT_KEY, id)
+  }
+  return id
+}
 
 /** 读取当前会话 ID；没有则生成一个新的并持久化。 */
 export function getOrCreateSessionId() {

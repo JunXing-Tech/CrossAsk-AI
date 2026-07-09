@@ -1,6 +1,7 @@
 /**
  * v1.1 SSE 客户端：用 fetch + ReadableStream 接收 /ask/stream 推送的事件。
  * EventSource 只支持 GET，POST 必须自己解析 SSE 帧。
+ * v1.2 所有请求携带 X-Client-Id 请求头，实现浏览器级会话隔离。
  *
  * 事件类型：
  * - token: 一段 token 文本（含转义的 \n）
@@ -8,6 +9,10 @@
  * - done: 流结束
  * - error: 错误信息
  */
+import { getOrCreateClientId } from '../utils/session.js'
+
+const clientId = getOrCreateClientId()
+
 export async function streamAsk(question, sessionId, callbacks) {
   const controller = new AbortController()
 
@@ -16,7 +21,8 @@ export async function streamAsk(question, sessionId, callbacks) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'text/event-stream'
+        Accept: 'text/event-stream',
+        'X-Client-Id': clientId
       },
       body: JSON.stringify({ question, sessionId }),
       signal: controller.signal
@@ -92,24 +98,29 @@ function unescapeFromSse(s) {
 
 /* ============ v1.1 会话历史接口 ============ */
 
-/** 拉取会话列表（最近活跃倒序）。 */
+/** 拉取会话列表（最近活跃倒序，按 clientId 隔离）。 */
 export async function fetchSessions(limit = 50) {
-  const resp = await fetch(`/api/sessions?limit=${limit}`)
+  const resp = await fetch(`/api/sessions?limit=${limit}`, {
+    headers: { 'X-Client-Id': clientId }
+  })
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
   return resp.json()
 }
 
-/** 拉取某会话全部消息（正序）。 */
+/** 拉取某会话全部消息（正序，需 clientId 校验）。 */
 export async function fetchSessionMessages(sessionId) {
-  const resp = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/messages`)
+  const resp = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/messages`, {
+    headers: { 'X-Client-Id': clientId }
+  })
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
   return resp.json()
 }
 
-/** 删除某会话。 */
+/** 删除某会话（需 clientId 校验防止越权）。 */
 export async function deleteSession(sessionId) {
   const resp = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}`, {
-    method: 'DELETE'
+    method: 'DELETE',
+    headers: { 'X-Client-Id': clientId }
   })
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
   return resp.json()

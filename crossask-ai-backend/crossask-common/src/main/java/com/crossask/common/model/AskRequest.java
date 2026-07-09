@@ -9,6 +9,8 @@ public class AskRequest {
     private String question;
     /** 会话 ID（可选）。传入则启用多轮记忆，不传则单轮。 */
     private String sessionId;
+    /** 浏览器客户端 ID（由前端 localStorage 生成，用于会话隔离）。 */
+    private String clientId;
 
     public String getQuestion() {
         return question;
@@ -24,5 +26,13 @@ public class AskRequest {
 
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 }
